@@ -1,0 +1,17 @@
+on:
+  push:
+    branches:
+    - main
+jobs:
+  server_connect:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Tailscale
+      uses: tailscale/github-action@v4
+      with:
+        oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+        audience: ${{ secrets.TS_AUDIENCE }}
+        tags: tag:ci
+        ping: $TS_SERVER_NAME       
+permissions:
+  id-token: write
