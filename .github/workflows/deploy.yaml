@@ -13,3 +13,6 @@ jobs:
       TS_AUDIENCE: ${{ secrets.TS_AUDIENCE }}
       SERVER_HOSTNAME: ${{ secrets.SSH_HOSTNAME }}
       SERVER_USER: ${{ secrets.SSS_USER }}
+
+permissions: 
+  id-token: write
