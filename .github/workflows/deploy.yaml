@@ -5,7 +5,7 @@ on:
 jobs:
   cd:
     name: Deploy
-    uses: ShadowLord2005/MyActions/.github/workflows/tailscale_ssh_execute.yml@main
+    uses: ShadowLord2005/MyActions/.github/workflows/tailscale_ssh_execute.yaml@main
     with:
       SSH_SCRIPT: ${{ vars.SSH_SCRIPT }}
     secrets:
