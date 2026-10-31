@@ -1,0 +1,17 @@
+name: "Server Status Bot"
+
+services:
+  bot:
+    container_name: discord_bot
+    build: .
+    env_file:
+      - ".env"
+    develop:
+      watch:
+        - action: sync+restart
+          path: .
+          target: /app
+          ignore:
+            - .venv/
+        - action: rebuild
+          path: ./pyproject.toml
