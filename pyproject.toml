@@ -8,7 +8,7 @@ dependencies = [
 ]
 
 [project.scripts]
-serverstatus = "src.bot:__main__"
+serverstatus = "src.bot:__name__"
 
 [build-system]
 requires = ["uv_build>=0.13.6,<0.14.0"]
