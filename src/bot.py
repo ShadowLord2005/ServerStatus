@@ -1,4 +1,5 @@
 import logging
+import subprocess
 from datetime import datetime
 from json import load
 from os import getenv
@@ -39,6 +40,21 @@ class Message_Embed(discord.Embed):
         super().__init__(title=title, timestamp=datetime.now())
         self.add_field(name="message_field",value=message)
 
+class Warn_Embed(discord.Embed):
+    def __init__(self, warn_message : str, command : str):
+        super().__init__(colour=discord.colour.Colour.dark_gold(),  title="Command Warning", timestamp=datetime.now())
+        self.add_field(name="Warning Field", value="#WARN")
+        self.add_field(name="Command", value=f"While executing the command : {command} a warning occurred")
+        self.add_field(name="Warn Message", value=warn_message)
+
+
+class Error_Embed(discord.Embed):
+    def __init__(self, error_message : str, command : str):
+        super().__init__(colour=discord.colour.Colour.red(),  title="Command Error", timestamp=datetime.now())
+        self.add_field(name="Warning Field", value="#ERROR")
+        self.add_field(name="Command", value=f"While executing the command : {command} an error occurred")
+        self.add_field(name="Error Message", value=error_message)
+
 
 #The main bot class
 class Server_Status_Bot(commands.Bot):
@@ -75,6 +91,64 @@ class Server_Status_Bot(commands.Bot):
 
 
 bot = Server_Status_Bot(config_file["notification_channel"], guild)
+
+@bot.tree.command(name="Check Local Connection",description="Pings the IP address in the config file to check if the local LAN is connected properly")
+async def check_local_connection(interaction : discord.Interaction) -> None:
+    logger.info("Check Local Connection Triggered, checking local connection")
+    ping = subprocess.run(["ping",config_file["ping_ip"]], stdout=subprocess.PIPE, text=True, timeout=5)
+    output = ping.stdout.splitlines()
+    j = -1
+    for i in range(len(output)):
+        if output[i].find("---") != -1:
+            j = i + 1
+            break
+    if j == -1:
+        logger.error("Ping Command Failed, Expected Identifier Not Found")
+        await interaction.response.send_message(embed=Error_Embed("Usage of Ping Command Failed, Expected Successful command identifier not found","Check Local Connection"))
+        await interaction.followup.send(embed=Error_Embed(f"Command Output follows:\n{output}","Check Local Connection"))
+        return
+    info_line = output[j]
+    stat_line = output[j+1]
+
+    output_type : str = "clear"
+    output_message : list[str] = []
+
+    info_data = info_line.split(", ") #w packets transmitted, x received, y% packet loss, time zms
+    info : dict[str,int]= {}
+    info["transmitted"] = int(info_data[0].split(" ")[0])
+    info["received"] = int(info_data[1].split(" ")[0])
+    info["loss"] = int(info_data[2].split(" ")[0].strip("%"))
+    info["time"] = int(info_data[3].split(" ")[-1].strip("ms"))
+
+
+    stat_data = stat_line.split("=")[1].strip("ms").split("/") #rtt min/avg/max/mdev = w/x/y/z ms
+    stats : dict[str,float] = {}
+    stats["min"] = float(stat_data[0])
+    stats["avg"] = float(stat_data[1])
+    stats["max"] = float(stat_data[2])
+    stats["mdev"] = float(stat_data[3])
+
+
+    if info["loss"] > 25:
+        output_type = "warn"
+        output_message.append(f"Significant packet loss: {info['loss']}%")
+    if stats["min"] > 0.7 or stats["max"] > 1.5 or stats["avg"] > 1.0:
+        output_type = "warn"
+        output_message.append(f"Abnormal response time: Max={stats['max']}, Min={stats['min']}, Avg={stats['avg']}")
+    if info["transmitted"] < 4:
+        output_type = "warn"
+        output_message.append(f"Minimal Packets sent ({info['transmitted']}) data may be unreliable")
+
+
+    if output_type == "warn":
+        output_embed = Warn_Embed("\n".join(output_message),"Check Local Connection")
+    elif output_type == "clear":
+        output_embed = Message_Embed("Check Local Connection","Local Connection is Okay, No issues Detected")
+    else:
+        raise Exception(f"Unknown Output Type : {output_type}")
+
+    await interaction.response.send_message(embed=output_embed)
+    return
 
 
 bot.run(token=bot_token, log_handler=handler)
