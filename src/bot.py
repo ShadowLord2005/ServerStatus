@@ -151,5 +151,13 @@ async def check_local_connection(interaction : discord.Interaction) -> None:
     return
 
 
+@bot.tree.command(name="Get Time", description="Gets the local time according to the Pi")
+async def get_time(interaction: discord.Interaction) -> None:
+    logger.info("Get Time triggered, getting system time")
+    await interaction.response.send_message(f"{datetime.now()}")
+    return
+
+
+
 bot.run(token=bot_token, log_handler=handler)
 
