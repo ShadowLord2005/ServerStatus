@@ -6,7 +6,8 @@ cd ServerStatus || exit 1
 
 if test -f "./run.pid"; then
     echo "PID exists, Killing previous Bot"
-    cat run.pid | xargs kill
+    cat run.pid | xargs kill -15
+    mv "nohup.out" "nohup_$(date +%Y-%m-%d_%H-%M-%S).out"
 fi
 
 echo "Running Git Pull"
