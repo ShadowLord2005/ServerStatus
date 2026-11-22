@@ -8,6 +8,8 @@ cd ServerStatus || exit 1
 
 git pull
 
+uv sync
+
 nohup uv run -qq --env-file .env serverstatus & echo $! > run.pid
 
 exit 0
