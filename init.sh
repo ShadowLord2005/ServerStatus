@@ -2,7 +2,7 @@
 
 echo "Starting Init Script"
 
-if [[ -f "/run.pid" ]]; then
+if [[ -f "./run.pid" ]]; then
     echo "PID exists, Killing previous Bot"
     cat run.pid | xargs kill
 fi
