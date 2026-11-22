@@ -38,12 +38,12 @@ if bot_token is None: raise ValueError("Missing BOT_TOKEN env")
 class Message_Embed(discord.Embed):
     def __init__(self, title : str, message : str):
         super().__init__(title=title, timestamp=datetime.now())
-        self.add_field(name="message_field",value=message)
+        self.add_field(name=None,value=message)
 
 class Warn_Embed(discord.Embed):
     def __init__(self, warn_message : str, command : str):
         super().__init__(colour=discord.colour.Colour.dark_gold(),  title="Command Warning", timestamp=datetime.now())
-        self.add_field(name="Warning Field", value="#WARN")
+        self.add_field(name=None, value="#WARN")
         self.add_field(name="Command", value=f"While executing the command : {command} a warning occurred")
         self.add_field(name="Warn Message", value=warn_message)
 
@@ -51,7 +51,7 @@ class Warn_Embed(discord.Embed):
 class Error_Embed(discord.Embed):
     def __init__(self, error_message : str, command : str):
         super().__init__(colour=discord.colour.Colour.red(),  title="Command Error", timestamp=datetime.now())
-        self.add_field(name="Warning Field", value="#ERROR")
+        self.add_field(name=None,value="#ERROR")
         self.add_field(name="Command", value=f"While executing the command : {command} an error occurred")
         self.add_field(name="Error Message", value=error_message)
 
@@ -72,6 +72,8 @@ class Server_Status_Bot(commands.Bot):
     async def on_ready(self) -> None:
         logger.info("Logged in as %s", self.user)
         try:
+            commands_list = self.tree.get_commands(guild=self.guild)
+            logger.info("Attempting to sync %s commands %s", len(commands_list), commands_list)
             synced = await self.tree.sync(guild=self.guild)
             id = guild.id if guild != None else "all"
             logger.info("Synced %s commands with server %s", len(synced), id)
