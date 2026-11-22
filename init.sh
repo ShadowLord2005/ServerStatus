@@ -8,7 +8,7 @@ cd ServerStatus || exit 1
 
 git pull
 
-uv sync
+"/home/${USER}/.local/bin/uv" sync
 
 nohup "/home/${USER}/.local/bin/uv" run -qq --env-file .env serverstatus & echo $! > run.pid
 
