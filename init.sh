@@ -2,14 +2,14 @@
 
 echo "Starting Init Script"
 
+cd ServerStatus || exit 1
+
 if test -f "./run.pid"; then
     echo "PID exists, Killing previous Bot"
     cat run.pid | xargs kill
 fi
 
-cd ServerStatus || exit 1
-
-echo "ServerStatus Folder Exists, running git pull"
+echo "Running Git Pull"
 
 git pull
 
