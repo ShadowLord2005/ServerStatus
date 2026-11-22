@@ -10,6 +10,6 @@ git pull
 
 uv sync
 
-nohup /home/$SCRIPT_USER/.local/bin/uv run -qq --env-file .env serverstatus & echo $! > run.pid
+nohup "/home/${USER}/.local/bin/uv" run -qq --env-file .env serverstatus & echo $! > run.pid
 
 exit 0
