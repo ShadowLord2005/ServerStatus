@@ -94,7 +94,7 @@ class Server_Status_Bot(commands.Bot):
 
 bot = Server_Status_Bot(config_file["notification_channel"], guild)
 
-@bot.tree.command(description="Pings the IP address in the config file to check if the local LAN is connected properly")
+@bot.tree.command(name="check_local_connection",description="Pings the IP address in the config file to check if the local LAN is connected properly")
 async def check_local_connection(interaction : discord.Interaction) -> None:
     logger.info("Check Local Connection Triggered, checking local connection")
     ping = subprocess.run(["ping",config_file["ping_ip"]], stdout=subprocess.PIPE, text=True, timeout=5)
@@ -153,7 +153,7 @@ async def check_local_connection(interaction : discord.Interaction) -> None:
     return
 
 
-@bot.tree.command(description="Gets the local time according to the Pi")
+@bot.tree.command(name="get_time",description="Gets the local time according to the Pi")
 async def get_time(interaction: discord.Interaction) -> None:
     logger.info("Get Time triggered, getting system time")
     await interaction.response.send_message(f"{datetime.now()}")
