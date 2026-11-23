@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from types import FrameType
-    from typing import Any, Optional
+    from typing import Any, Optional, Sequence
 
 import discord
 from discord import app_commands, ui
@@ -81,16 +81,29 @@ class Server_Status_Bot(commands.Bot):
     async def on_ready(self) -> None:
         logger.info("Logged in as %s", self.user)
         try:
-            commands_list = self.tree.get_commands(guild=self.guild)
-            logger.info("Attempting to sync %s commands %s", len(commands_list), commands_list)
-            synced = await self.tree.sync(guild=self.guild)
-            id = guild.id if guild != None else "all"
-            logger.info("Synced %s commands with server %s", len(synced), id)
+            test_commands_list  = self.tree.get_commands(guild=self.guild)
+            if len(test_commands_list) != 0:
+                test_command_names = []
+                for i in test_commands_list: test_command_names.append(i.name)
+                logger.info("Commands present in Test Guild")
+                logger.info("Attempting to sync %s commands with Test Guild\n%s", len(test_commands_list), "\n".join(test_command_names))
+                synced_test = await self.tree.sync(guild=self.guild)
+                logger.info("Synced %s commands with server %s", len(synced_test), self.guild.id)
+            else:
+                logger.info("No Test Commands")
+
 
             global_commands_list = self.tree.get_commands()
-            logger.info("Attempting to sync %s commands %s", len(global_commands_list), global_commands_list)
-            global_synced = await self.tree.sync()
-            logger.info("Synced %s commands with all servers", len(global_synced))
+            if len(global_commands_list) != 0:
+                global_command_names = []
+                for i in test_commands_list: global_command_names.append(i.name)
+                logger.info("Commands present in Test Guild")
+                logger.info("Attempting to sync %s commands globally\n%s", len(test_commands_list), "\n".join(global_command_names))
+                synced_test = await self.tree.sync()
+                logger.info("Synced %s commands with all guilds", len(synced_test))
+            else:
+                logger.info("No Global Commands")
+
         except Exception as e:
             logger.error(e)
 
@@ -108,7 +121,7 @@ class Server_Status_Bot(commands.Bot):
 
 bot = Server_Status_Bot(config_file["notification_channel"], guild)
 
-@bot.tree.command(name="check_local_connection",description="Pings the IP address in the config file to check if the local LAN is connected properly")
+@bot.tree.command(name="check_local_connection",description="Pings the IP address in the config file to check if the local LAN is connected properly", guild=bot.guild)
 async def check_local_connection(interaction : discord.Interaction) -> None:
     logger.info("Check Local Connection Triggered, checking local connection")
     ping = subprocess.run(["ping",config_file["ping_ip"]], stdout=subprocess.PIPE, text=True, timeout=5)
@@ -167,14 +180,14 @@ async def check_local_connection(interaction : discord.Interaction) -> None:
     return
 
 
-@bot.tree.command(name="get_time",description="Gets the local time according to the Pi")
+@bot.tree.command(name="get_time",description="Gets the local time according to the Pi", guild=bot.guild)
 async def get_time(interaction: discord.Interaction) -> None:
     logger.info("Get Time triggered, getting system time")
     await interaction.response.send_message(f"{datetime.now()}")
     return
 
 
-@bot.tree.command(name="get_container_info", description="Gets the information from all of the currently running containers on the Server")
+@bot.tree.command(name="get_container_info", description="Gets the information from all of the currently running containers on the Server", guild=bot.guild)
 async def get_container_info(interaction: discord.Interaction) -> None:
     logger.info("Get Container Info triggered, getting container info")
     await interaction.followup.send("Hello")
