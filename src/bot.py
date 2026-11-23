@@ -160,6 +160,11 @@ async def get_time(interaction: discord.Interaction) -> None:
     return
 
 
+@bot.tree.command(name="get_container_info", description="Gets the information from all of the currently running containers on the Server")
+async def get_container_info(interaction: discord.Interaction) -> None:
+    logger.info("Get Container Info triggered, getting container info")
+    await interaction.followup.send("Hello")
+    return
 
 bot.run(token=bot_token, log_handler=handler)
 
