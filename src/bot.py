@@ -1,4 +1,6 @@
+import asyncio
 import logging
+import signal
 import subprocess
 from datetime import datetime
 from json import load
@@ -7,7 +9,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from typing import Any
+    from types import FrameType
+    from typing import Any, Optional
 
 import discord
 from discord import app_commands, ui
@@ -23,6 +26,12 @@ logger.addHandler(handler)
 with Path("src/config.json").open() as file:
     config_file : dict[str, Any] = load(file)
 
+#Adds a handler to deal with the sigterm sent by the kill command
+def sigterm_handler(signum : int, frame: Optional[FrameType]) -> None:
+    print(f"Received Signal {signum}")
+    asyncio.run(bot.close())
+
+signal.signal(signal.SIGTERM, sigterm_handler)
 
 
 #Gets the guild ID from the env file, raises error if missing
@@ -77,6 +86,11 @@ class Server_Status_Bot(commands.Bot):
             synced = await self.tree.sync(guild=self.guild)
             id = guild.id if guild != None else "all"
             logger.info("Synced %s commands with server %s", len(synced), id)
+
+            global_commands_list = self.tree.get_commands()
+            logger.info("Attempting to sync %s commands %s", len(global_commands_list), global_commands_list)
+            global_synced = await self.tree.sync()
+            logger.info("Synced %s commands with all servers", len(global_synced))
         except Exception as e:
             logger.error(e)
 

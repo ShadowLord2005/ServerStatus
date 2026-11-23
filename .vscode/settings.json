@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
-        "serverstatus"
+        "serverstatus",
+        "signum"
     ],
     "python.terminal.useEnvFile": true
 }
