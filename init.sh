@@ -18,7 +18,7 @@ git pull
 
 echo "Repo Pulled and .venv synced"
 
-nohup "/home/${USER}/.local/bin/uv" run -qq --env-file .env serverstatus & echo $! > run.pid
+nohup "/home/${USER}/.local/bin/uv" run -qq --env-file .env serverstatus > "$(date +%Y-%m-%d_%H-%M-%S).log" 2>&1 & echo $! > run.pid
 
 echo "Bot Logged in and Running"
 
